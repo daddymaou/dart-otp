@@ -1,0 +1,7 @@
+.env
+*.exe
+*.exe~
+dart-otp
+/bin/
+/vendor/
+BACKEND_GUIDE.md
