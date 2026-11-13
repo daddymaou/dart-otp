@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -16,15 +15,12 @@ import (
 	"github.com/daddymaou/dart-otp/internal/config"
 	"github.com/daddymaou/dart-otp/internal/db"
 	"github.com/daddymaou/dart-otp/internal/httpapi"
-	"github.com/daddymaou/dart-otp/internal/worker"
+	"github.com/daddymaou/dart-otp/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/gin-gonic/gin"
 )
-
-//go:embed all:migrations
-var migrationsFS embed.FS
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
@@ -93,7 +89,7 @@ func main() {
 }
 
 func runMigrations(databaseURL string) error {
-	d, err := iofs.New(migrationsFS, "migrations")
+	d, err := iofs.New(migrations.FS, ".")
 	if err != nil {
 		return fmt.Errorf("read migrations: %w", err)
 	}
