@@ -64,7 +64,10 @@ func main() {
 		defer telegramBot.Stop()
 	}
 
-	router := httpapi.New(cfg, pool)
+	router, api := httpapi.New(cfg, pool, telegramBot.Sender())
+	telegramBot.SetDeliverWaiting(func(tenantID, phone string, chatID int64) {
+		api.OTPService().DeliverWaitingCode(tenantID, phone, chatID)
+	})
 	srv := &http.Server{
 		Addr:    cfg.HTTPAddr,
 		Handler: router,

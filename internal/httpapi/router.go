@@ -20,8 +20,11 @@ type API struct {
 // SetOTPService wires the OTP core in before route registration.
 func (a *API) SetOTPService(s *otp.Service) { a.otpSvc = s }
 
-func New(cfg *config.Config, pool *pgxpool.Pool) *gin.Engine {
+func (a *API) OTPService() *otp.Service { return a.otpSvc }
+
+func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Engine, *API) {
 	api := &API{cfg: cfg, pool: pool}
+	api.otpSvc = otp.NewService(cfg, pool, otpSender)
 	router := gin.New()
 
 	router.Use(gin.CustomRecovery(func(c *gin.Context, _ any) {
@@ -49,7 +52,7 @@ func New(cfg *config.Config, pool *pgxpool.Pool) *gin.Engine {
 	otpGroup.POST("/verify", api.devTenantMiddleware(), api.otpVerify)
 	otpGroup.POST("/resend", api.devTenantMiddleware(), api.otpResend)
 
-	return router
+	return router, api
 }
 
 func (a *API) devTenantMiddleware() gin.HandlerFunc {

@@ -27,6 +27,8 @@ func (bt *Bot) SetDeliverWaiting(f func(tenantID, phone string, chatID int64)) {
 	bt.onDeliverWaiting = f
 }
 
+func (bt *Bot) Sender() *Sender { return bt.sender }
+
 func Start(cfg *config.Config, pool *pgxpool.Pool) (*Bot, error) {
 	pref := telebot.Settings{
 		Token:  cfg.TelegramBotToken,
