@@ -63,6 +63,12 @@ func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Eng
 	jwtGroup.GET("/logs", api.logs)
 	jwtGroup.GET("/stats", api.stats)
 
+	jwtGroup.GET("/webhooks", api.listWebhooks)
+	jwtGroup.POST("/webhooks", api.createWebhook)
+	jwtGroup.PUT("/webhooks/:id", api.updateWebhook)
+	jwtGroup.DELETE("/webhooks/:id", api.deleteWebhook)
+	jwtGroup.GET("/webhooks/:id/deliveries", api.webhookDeliveries)
+
 	otpGroup := router.Group("/v1/otp")
 	otpGroup.POST("/send", api.apiKeyMiddleware(), api.otpSend)
 	otpGroup.POST("/verify", api.apiKeyMiddleware(), api.otpVerify)
