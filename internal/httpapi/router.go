@@ -29,6 +29,10 @@ func New(cfg *config.Config, pool *pgxpool.Pool) *gin.Engine {
 	router.GET("/health", api.health)
 	router.NoRoute(noRoute)
 
+	if cfg.AppEnv == "development" {
+		router.POST("/dev/link-token", api.devLinkToken)
+	}
+
 	auth := router.Group("/v1/auth")
 	auth.Group("") // TODO step 6: signup, login, logout, me
 
