@@ -42,7 +42,11 @@ func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Eng
 	}
 
 	auth := router.Group("/v1/auth")
-	auth.Group("") // TODO step 6: signup, login, logout, me
+	auth.POST("/signup", api.signup)
+	auth.POST("/login", api.login)
+	auth.POST("/logout", api.logout)
+	auth.GET("/me", api.jwtMiddleware(), api.me)
+	auth.DELETE("/me", api.jwtMiddleware(), api.deleteMe)
 
 	apiKeys := router.Group("/v1") // TODO step 7: JWT-protected api-keys, templates, logs, stats, webhooks
 	_ = apiKeys

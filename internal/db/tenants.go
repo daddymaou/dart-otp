@@ -37,6 +37,17 @@ type TenantWithPassword struct {
 	PasswordHash string
 }
 
+func GetTenantWithPasswordByID(ctx context.Context, pool *pgxpool.Pool, id string) (TenantWithPassword, error) {
+	row := pool.QueryRow(ctx,
+		`SELECT id, name, email, plan, status, password_hash FROM tenants WHERE id = $1`, id)
+	var t TenantWithPassword
+	err := row.Scan(&t.ID, &t.Name, &t.Email, &t.Plan, &t.Status, &t.PasswordHash)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return t, ErrTenantNotFound
+	}
+	return t, err
+}
+
 func DeleteTenant(ctx context.Context, pool *pgxpool.Pool, tenantID string) error {
 	tag, err := pool.Exec(ctx, `DELETE FROM tenants WHERE id = $1`, tenantID)
 	if err != nil {
