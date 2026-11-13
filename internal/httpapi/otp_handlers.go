@@ -23,7 +23,7 @@ func (a *API) otpSend(c *gin.Context) {
 		fail(c, "invalid_phone", "Phone must be a valid number in international format.", nil)
 		return
 	}
-	out, err := a.otpSvc.Send(c.Request.Context(), c.GetString("tenant_id"), p, req.TemplateID, false)
+	out, err := a.otpSvc.Send(c.Request.Context(), c.GetString("tenant_id"), p, req.TemplateID, c.GetBool("is_test"))
 	otpRespond(c, out, err)
 }
 
@@ -39,7 +39,7 @@ func (a *API) otpResend(c *gin.Context) {
 		fail(c, "invalid_phone", "Phone must be a valid number in international format.", nil)
 		return
 	}
-	out, err := a.otpSvc.Send(c.Request.Context(), c.GetString("tenant_id"), p, "", false)
+	out, err := a.otpSvc.Send(c.Request.Context(), c.GetString("tenant_id"), p, "", c.GetBool("is_test"))
 	otpRespond(c, out, err)
 }
 
