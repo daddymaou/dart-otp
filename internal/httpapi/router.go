@@ -48,31 +48,17 @@ func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Eng
 	auth.GET("/me", api.jwtMiddleware(), api.me)
 	auth.DELETE("/me", api.jwtMiddleware(), api.deleteMe)
 
-	apiKeys := router.Group("/v1") // TODO step 7: JWT-protected api-keys, templates, logs, stats, webhooks
-	_ = apiKeys
+	jwtGroup := router.Group("/v1", api.jwtMiddleware())
+	jwtGroup.POST("/api-keys", api.createAPIKey)
+	jwtGroup.GET("/api-keys", api.listAPIKeys)
+	jwtGroup.DELETE("/api-keys/:id", api.revokeAPIKey)
 
 	otpGroup := router.Group("/v1/otp")
-	otpGroup.POST("/send", api.devTenantMiddleware(), api.otpSend)
-	otpGroup.POST("/verify", api.devTenantMiddleware(), api.otpVerify)
-	otpGroup.POST("/resend", api.devTenantMiddleware(), api.otpResend)
+	otpGroup.POST("/send", api.apiKeyMiddleware(), api.otpSend)
+	otpGroup.POST("/verify", api.apiKeyMiddleware(), api.otpVerify)
+	otpGroup.POST("/resend", api.apiKeyMiddleware(), api.otpResend)
 
 	return router, api
-}
-
-func (a *API) devTenantMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if a.cfg.AppEnv != "development" {
-			fail(c, "unauthorized", "Missing or invalid API key.", nil)
-			return
-		}
-		t := c.GetHeader("X-Dev-Tenant")
-		if t == "" {
-			fail(c, "unauthorized", "X-Dev-Tenant header required in development.", nil)
-			return
-		}
-		c.Set("tenant_id", t)
-		c.Next()
-	}
 }
 
 func (a *API) health(c *gin.Context) {
