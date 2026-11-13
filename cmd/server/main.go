@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/daddymaou/dart-otp/internal/bot"
 	"github.com/daddymaou/dart-otp/internal/config"
 	"github.com/daddymaou/dart-otp/internal/db"
 	"github.com/daddymaou/dart-otp/internal/httpapi"
@@ -51,6 +52,16 @@ func main() {
 
 	if cfg.AppEnv != "development" {
 		gin.SetMode(gin.ReleaseMode)
+	}
+
+	var telegramBot *bot.Bot
+	if cfg.TelegramBotToken != "" {
+		telegramBot, err = bot.Start(cfg, pool)
+		if err != nil {
+			slog.Error("telegram bot", "error", err)
+			os.Exit(1)
+		}
+		defer telegramBot.Stop()
 	}
 
 	router := httpapi.New(cfg, pool)
