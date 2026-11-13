@@ -1,0 +1,61 @@
+Dart-OTP Proprietary Software License
+
+Copyright (c) 2026 daddymaou. All rights reserved.
+
+1. DEFINITIONS
+   "Software" means the Dart-OTP backend source code, compiled binaries and
+   associated assets in this repository. "Licensor" means the copyright holder.
+   "You" means any individual or entity that obtains the Software.
+
+2. OWNERSHIP
+   The Software is the exclusive property of the Licensor. This is NOT open
+   source software. All rights, title and interest in and to the Software,
+   including all intellectual property rights, remain with the Licensor.
+
+3. LICENSE GRANT
+   Subject to the terms of this License, the Licensor grants You a limited,
+   personal, non-exclusive, non-transferable, revocable, world-wide license to:
+   a) access and use a running instance of the Software as a hosted service or
+      as provided by the Licensor;
+   b) view the source code in this repository for the sole purpose of
+      evaluating the Software.
+
+4. RESTRICTIONS
+   You may NOT, without a separate signed agreement with the Licensor:
+   a) copy, reproduce, republish, distribute, sublicense, sell, rent, lease,
+      or otherwise transfer the Software or any copy of it, in whole or in
+      part, to any third party;
+   b) modify, translate, adapt, merge, or create derivative works based on the
+      Software;
+   c) decompile, disassemble, reverse engineer or attempt to reconstruct the
+      source code of any compiled form of the Software;
+   d) remove, alter or obscure any copyright, trademark or proprietary notice;
+   e) use the Software to provide a competing product or service;
+   f) host, deploy or operate the Software for production or commercial use
+      except through credentials and instances expressly issued to You by the
+      Licensor.
+
+5. MULTI-TENANT DATA
+   Data submitted by You while using the Software remains Your data. The
+   Licensor processes such data solely to operate the service and never sells
+   or shares it with third parties except as required to deliver the service.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+   IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+8. TERMINATION
+   This License terminates automatically upon breach of any term. Upon
+   termination, You must cease all use of the Software.
+
+9. UPDATES
+   The Licensor may update this License. Continued use after an update
+   constitutes acceptance.
+
+Contact: via github.com/daddymaou for licensing inquiries.
