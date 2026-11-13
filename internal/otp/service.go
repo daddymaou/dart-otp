@@ -15,6 +15,7 @@ import (
 	"github.com/daddymaou/dart-otp/internal/bot"
 	"github.com/daddymaou/dart-otp/internal/config"
 	"github.com/daddymaou/dart-otp/internal/db"
+	"github.com/daddymaou/dart-otp/internal/webhooks"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -193,6 +194,7 @@ func (s *Service) Send(ctx context.Context, tenantID, phoneRaw, templateID strin
 		s.pendingCodes.Delete(o.ID)
 		if !isTest {
 			_ = db.InsertEvent(ctx, s.pool, fmt.Sprintf("tenant:%s:send", tenantID))
+			s.fireEvent(ctx, tenantID, o.ID, phoneRaw, "otp.sent")
 		}
 		return out, nil
 	default:
@@ -209,6 +211,25 @@ func (s *Service) Send(ctx context.Context, tenantID, phoneRaw, templateID strin
 			_ = db.InsertEvent(ctx, s.pool, fmt.Sprintf("tenant:%s:send", tenantID))
 		}
 		return out, nil
+	}
+}
+
+func (s *Service) fireEvent(ctx context.Context, tenantID, otpID, phone, event string) {
+	rows, err := s.pool.Query(ctx,
+		`SELECT id FROM webhooks WHERE tenant_id = $1 AND active AND $2 = ANY(events)`,
+		tenantID, event)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			continue
+		}
+		deliveryID := newUUID()
+		payload := webhooks.BuildPayload(deliveryID, event, time.Now(), otpID, phone)
+		_ = db.InsertDelivery(ctx, s.pool, id, event, payload)
 	}
 }
 
@@ -245,6 +266,7 @@ func (s *Service) Verify(ctx context.Context, tenantID, phoneRaw, code string) (
 	}
 	if time.Now().After(latest.ExpiresAt) {
 		_ = db.SetOTPStatus(ctx, s.pool, latest.ID, "expired")
+		s.fireEvent(ctx, tenantID, latest.ID, phoneRaw, "otp.expired")
 		return VerifyOutcome{Status: "expired"}, nil
 	}
 	o, ok, err := db.TryIncrementAttemptsForLatest(ctx, s.pool, tenantID, phoneRaw)
@@ -257,10 +279,12 @@ func (s *Service) Verify(ctx context.Context, tenantID, phoneRaw, code string) (
 	}
 	if CompareCodes(HashCode(s.cfg.OTPPepper, o.Salt, code), o.CodeHash) {
 		_ = db.SetOTPStatus(ctx, s.pool, o.ID, "verified")
+		s.fireEvent(ctx, tenantID, o.ID, phoneRaw, "otp.verified")
 		return VerifyOutcome{Status: "verified"}, nil
 	}
 	if o.Attempts >= o.MaxAttempts {
 		_ = db.SetOTPStatus(ctx, s.pool, o.ID, "failed")
+		s.fireEvent(ctx, tenantID, o.ID, phoneRaw, "otp.failed")
 		return VerifyOutcome{Status: "too_many_attempts"}, nil
 	}
 	return VerifyOutcome{Status: "invalid"}, nil
