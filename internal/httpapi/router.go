@@ -53,6 +53,13 @@ func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Eng
 	jwtGroup.GET("/api-keys", api.listAPIKeys)
 	jwtGroup.DELETE("/api-keys/:id", api.revokeAPIKey)
 
+	jwtGroup.GET("/templates", api.listTemplates)
+	jwtGroup.POST("/templates", api.createTemplate)
+	jwtGroup.GET("/templates/:id", api.getTemplate)
+	jwtGroup.PUT("/templates/:id", api.updateTemplate)
+	jwtGroup.DELETE("/templates/:id", api.deleteTemplate)
+	jwtGroup.POST("/templates/:id/test", api.testTemplate)
+
 	otpGroup := router.Group("/v1/otp")
 	otpGroup.POST("/send", api.apiKeyMiddleware(), api.otpSend)
 	otpGroup.POST("/verify", api.apiKeyMiddleware(), api.otpVerify)

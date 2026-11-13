@@ -292,6 +292,11 @@ func (s *Service) DeliverWaitingCode(tenantID, phone string, chatID int64) {
 	s.pendingCodes.Delete(o.ID)
 }
 
+// SendSample delivers a rendered test message (template test endpoint).
+func (s *Service) SendSample(chatID int64, renderedBody string) error {
+	return s.sender.Send(chatID, renderedBody)
+}
+
 func newLinkToken() (raw, hash string) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
