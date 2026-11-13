@@ -16,6 +16,7 @@ import (
 	"github.com/daddymaou/dart-otp/internal/config"
 	"github.com/daddymaou/dart-otp/internal/db"
 	"github.com/daddymaou/dart-otp/internal/httpapi"
+	"github.com/daddymaou/dart-otp/internal/worker"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
@@ -68,6 +69,9 @@ func main() {
 	telegramBot.SetDeliverWaiting(func(tenantID, phone string, chatID int64) {
 		api.OTPService().DeliverWaitingCode(tenantID, phone, chatID)
 	})
+
+	worker := worker.Start(cfg, pool)
+	defer worker.Stop()
 	srv := &http.Server{
 		Addr:    cfg.HTTPAddr,
 		Handler: router,
