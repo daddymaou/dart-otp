@@ -6,14 +6,19 @@ import (
 	"time"
 
 	"github.com/daddymaou/dart-otp/internal/config"
+	"github.com/daddymaou/dart-otp/internal/otp"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type API struct {
-	cfg  *config.Config
-	pool *pgxpool.Pool
+	cfg    *config.Config
+	pool   *pgxpool.Pool
+	otpSvc *otp.Service
 }
+
+// SetOTPService wires the OTP core in before route registration.
+func (a *API) SetOTPService(s *otp.Service) { a.otpSvc = s }
 
 func New(cfg *config.Config, pool *pgxpool.Pool) *gin.Engine {
 	api := &API{cfg: cfg, pool: pool}
@@ -39,10 +44,28 @@ func New(cfg *config.Config, pool *pgxpool.Pool) *gin.Engine {
 	apiKeys := router.Group("/v1") // TODO step 7: JWT-protected api-keys, templates, logs, stats, webhooks
 	_ = apiKeys
 
-	otp := router.Group("/v1/otp") // TODO step 5: send, verify, resend
-	_ = otp
+	otpGroup := router.Group("/v1/otp")
+	otpGroup.POST("/send", api.devTenantMiddleware(), api.otpSend)
+	otpGroup.POST("/verify", api.devTenantMiddleware(), api.otpVerify)
+	otpGroup.POST("/resend", api.devTenantMiddleware(), api.otpResend)
 
 	return router
+}
+
+func (a *API) devTenantMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if a.cfg.AppEnv != "development" {
+			fail(c, "unauthorized", "Missing or invalid API key.", nil)
+			return
+		}
+		t := c.GetHeader("X-Dev-Tenant")
+		if t == "" {
+			fail(c, "unauthorized", "X-Dev-Tenant header required in development.", nil)
+			return
+		}
+		c.Set("tenant_id", t)
+		c.Next()
+	}
 }
 
 func (a *API) health(c *gin.Context) {
