@@ -70,6 +70,12 @@ func (p *pendingCodeStore) Delete(otpID string) {
 	delete(p.items, otpID)
 }
 
+// Get2 is Get with a blank id allowed for tests.
+func (p *pendingCodeStore) Get2(otpID string) string {
+	code, _ := p.Get(otpID)
+	return code
+}
+
 func NewService(cfg *config.Config, pool *pgxpool.Pool, sender Sender) *Service {
 	return &Service{cfg: cfg, pool: pool, sender: sender, pendingCodes: newPendingCodeStore()}
 }
