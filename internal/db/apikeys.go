@@ -29,7 +29,7 @@ func CreateAPIKey(ctx context.Context, pool *pgxpool.Pool, tenantID, name, prefi
 
 type KeyAuth struct {
 	APIKeyRow
-	TenantID   string
+	TenantID     string
 	TenantStatus string
 }
 

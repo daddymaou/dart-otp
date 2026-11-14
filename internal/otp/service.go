@@ -26,9 +26,9 @@ type Sender interface {
 var ErrBlocked = bot.ErrBlocked
 
 type Service struct {
-	cfg    *config.Config
-	pool   *pgxpool.Pool
-	sender Sender
+	cfg          *config.Config
+	pool         *pgxpool.Pool
+	sender       Sender
 	pendingCodes *pendingCodeStore
 }
 

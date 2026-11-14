@@ -20,15 +20,15 @@ type Config struct {
 	TelegramBotToken    string
 	TelegramBotUsername string
 
-	OTPLength         int
-	OTPTTL            time.Duration
-	OTPMaxAttempts    int
-	OTPCooldown       time.Duration
-	LinkTokenTTL      time.Duration
-	TenantRatePerMin  int
-	AuthRatePerMin    int
-	RetentionDays     int
-	Plans             map[string]Plan
+	OTPLength        int
+	OTPTTL           time.Duration
+	OTPMaxAttempts   int
+	OTPCooldown      time.Duration
+	LinkTokenTTL     time.Duration
+	TenantRatePerMin int
+	AuthRatePerMin   int
+	RetentionDays    int
+	Plans            map[string]Plan
 }
 
 func get(key, def string) string {
@@ -101,10 +101,10 @@ func Load() (*Config, error) {
 
 	if c.AppEnv != "test" {
 		for k, v := range map[string]string{
-			"DATABASE_URL":        c.DatabaseURL,
-			"JWT_SECRET":          c.JWTSecret,
-			"OTP_PEPPER":          c.OTPPepper,
-			"TELEGRAM_BOT_TOKEN":  c.TelegramBotToken,
+			"DATABASE_URL":       c.DatabaseURL,
+			"JWT_SECRET":         c.JWTSecret,
+			"OTP_PEPPER":         c.OTPPepper,
+			"TELEGRAM_BOT_TOKEN": c.TelegramBotToken,
 		} {
 			if v == "" {
 				return nil, fmt.Errorf("missing required env var: %s", k)
