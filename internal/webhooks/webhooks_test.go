@@ -1,6 +1,7 @@
 package webhooks
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,7 +22,7 @@ func TestSignAndDeliver(t *testing.T) {
 
 	payload := []byte(`{"event":"otp.verified"}`)
 	c := NewClient()
-	status, err := c.Deliver(srv.URL, "secret", payload)
+	status, err := c.Deliver(context.Background(), srv.URL, "secret", payload)
 	if err != nil || status != http.StatusOK {
 		t.Fatalf("deliver: %d %v", status, err)
 	}

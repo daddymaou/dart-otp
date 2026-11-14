@@ -15,11 +15,12 @@ import (
 	"github.com/daddymaou/dart-otp/internal/config"
 	"github.com/daddymaou/dart-otp/internal/db"
 	"github.com/daddymaou/dart-otp/internal/httpapi"
+	"github.com/daddymaou/dart-otp/internal/worker"
 	"github.com/daddymaou/dart-otp/migrations"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
