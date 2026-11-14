@@ -110,11 +110,19 @@ type Delivery struct {
 
 func ClaimDueDeliveries(ctx context.Context, pool *pgxpool.Pool, limit int) ([]Delivery, error) {
 	rows, err := pool.Query(ctx,
-		`UPDATE webhook_deliveries d SET attempts = attempts + 1
-		 FROM webhooks w
-		 WHERE w.id = d.webhook_id AND d.status = 'pending' AND d.attempts < 5 AND d.next_retry_at <= now()
-		 RETURNING d.id, d.webhook_id, w.url, w.secret, d.event, d.payload, d.attempts, d.next_retry_at
-		 LIMIT $1`, limit)
+		`WITH due AS (
+		   SELECT d.id
+		   FROM webhook_deliveries d
+		   JOIN webhooks w ON w.id = d.webhook_id
+		   WHERE d.status = 'pending' AND d.attempts < 5 AND d.next_retry_at <= now()
+		   ORDER BY d.next_retry_at, d.created_at
+		   LIMIT $1
+		   FOR UPDATE OF d SKIP LOCKED
+		 )
+		 UPDATE webhook_deliveries d SET attempts = d.attempts + 1
+		 FROM due, webhooks w
+		 WHERE d.id = due.id AND w.id = d.webhook_id
+		 RETURNING d.id, d.webhook_id, w.url, w.secret, d.event, d.payload, d.attempts, d.next_retry_at`, limit)
 	if err != nil {
 		return nil, err
 	}
