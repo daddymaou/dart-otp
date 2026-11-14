@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -90,11 +91,13 @@ func main() {
 }
 
 func runMigrations(databaseURL string) error {
+	// the pgx/v5 migrate driver registers itself under the pgx5 scheme
+	migrateURL := strings.Replace(databaseURL, "postgres://", "pgx5://", 1)
 	d, err := iofs.New(migrations.FS, ".")
 	if err != nil {
 		return fmt.Errorf("read migrations: %w", err)
 	}
-	m, err := migrate.NewWithSourceInstance("iofs", d, databaseURL)
+	m, err := migrate.NewWithSourceInstance("iofs", d, migrateURL)
 	if err != nil {
 		return fmt.Errorf("migrate init: %w", err)
 	}
