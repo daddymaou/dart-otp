@@ -35,6 +35,11 @@ func get(key, def string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
 	}
+	if key == "HTTP_ADDR" {
+		if port := os.Getenv("PORT"); port != "" {
+			return ":" + port
+		}
+	}
 	return def
 }
 
