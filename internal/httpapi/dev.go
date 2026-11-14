@@ -35,7 +35,7 @@ func (a *API) devLinkToken(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"deep_link":      "https://t.me/" + a.cfg.TelegramBotUsername + "?start=" + raw,
+		"deep_link":       "https://t.me/" + a.cfg.TelegramBotUsername + "?start=" + raw,
 		"link_expires_at": expires.UTC().Format(time.RFC3339),
 	})
 }

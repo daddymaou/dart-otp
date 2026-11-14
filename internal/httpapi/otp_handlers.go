@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/daddymaou/dart-otp/internal/db"
 	"github.com/daddymaou/dart-otp/internal/otp"
 	"github.com/daddymaou/dart-otp/internal/phone"
 	"github.com/gin-gonic/gin"
@@ -91,7 +92,7 @@ func otpError(c *gin.Context, err error) {
 		fail(c, "rate_limited", "Too many requests. Try again later.", nil)
 	case errors.Is(err, otp.ErrQuota):
 		fail(c, "quota_exceeded", "Monthly plan quota used up.", nil)
-	case errors.Is(err, otp.ErrTemplateNotFound):
+	case errors.Is(err, db.ErrTemplateNotFound):
 		fail(c, "not_found", "Template not found.", nil)
 	default:
 		var ce *otp.CooldownErr
