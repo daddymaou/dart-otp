@@ -81,9 +81,9 @@ func (w *Worker) expireOTPs(ctx context.Context) {
 }
 
 func (w *Worker) cleanup(ctx context.Context) {
-	_ = w.pool.Exec(ctx, `DELETE FROM rate_events WHERE created_at < now() - interval '1 day'`)
-	_ = w.pool.Exec(ctx, `DELETE FROM otps WHERE created_at < now() - make_interval(days => $1)`, w.cfg.RetentionDays)
-	_ = w.pool.Exec(ctx, `DELETE FROM link_tokens
+	_, _ = w.pool.Exec(ctx, `DELETE FROM rate_events WHERE created_at < now() - interval '1 day'`)
+	_, _ = w.pool.Exec(ctx, `DELETE FROM otps WHERE created_at < now() - make_interval(days => $1)`, w.cfg.RetentionDays)
+	_, _ = w.pool.Exec(ctx, `DELETE FROM link_tokens
 		WHERE (used_at IS NOT NULL AND used_at < now() - interval '1 day')
 		   OR (used_at IS NULL AND expires_at < now() - interval '1 day')`)
 }

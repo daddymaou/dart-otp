@@ -15,11 +15,11 @@ import (
 )
 
 type Bot struct {
-	bot           *telebot.Bot
-	pool          *pgxpool.Pool
-	cfg           *config.Config
-	pending       *PendingLinks
-	sender        *Sender
+	bot              *telebot.Bot
+	pool             *pgxpool.Pool
+	cfg              *config.Config
+	pending          *PendingLinks
+	sender           *Sender
 	onDeliverWaiting func(tenantID, phone string, chatID int64)
 }
 
@@ -74,10 +74,10 @@ func (bt *Bot) handleStart(c telebot.Context) error {
 	bt.pending.Set(c.Sender().ID, hash, 15*time.Minute)
 	return c.Send("Tap the button below to share your number.", &telebot.SendOptions{
 		ReplyMarkup: &telebot.ReplyMarkup{
-			ResizeKeyboard: true,
+			ResizeKeyboard:  true,
 			OneTimeKeyboard: true,
-			ReplyKeyboard: []telebot.ReplyButton{
-				{Text: "Share my number", Contact: true},
+			ReplyKeyboard: [][]telebot.ReplyButton{
+				{{Text: "Share my number", Contact: true}},
 			},
 		},
 	})

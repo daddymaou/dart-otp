@@ -19,7 +19,7 @@ func ValidateContact(senderID, contactUserID int64, contactPhone, pendingTokenHa
 	if pendingTokenHash == "" {
 		return "", ErrTokenExpired
 	}
-	p, err := phone.Normalize(contactPhone)
+	p, err := phone.NormalizeContact(contactPhone)
 	if err != nil {
 		return "", ErrOwnNumber
 	}
