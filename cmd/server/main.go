@@ -91,8 +91,7 @@ func main() {
 }
 
 func runMigrations(databaseURL string) error {
-	// the pgx/v5 migrate driver registers itself under the pgx5 scheme
-	migrateURL := strings.Replace(databaseURL, "postgres://", "pgx5://", 1)
+	migrateURL := migrationDatabaseURL(databaseURL)
 	d, err := iofs.New(migrations.FS, ".")
 	if err != nil {
 		return fmt.Errorf("read migrations: %w", err)
@@ -106,4 +105,14 @@ func runMigrations(databaseURL string) error {
 		return fmt.Errorf("migrate up: %w", err)
 	}
 	return nil
+}
+
+func migrationDatabaseURL(databaseURL string) string {
+	// The pgx/v5 migrate driver registers itself under the pgx5 scheme.
+	for _, scheme := range []string{"postgres://", "postgresql://"} {
+		if strings.HasPrefix(databaseURL, scheme) {
+			return "pgx5://" + strings.TrimPrefix(databaseURL, scheme)
+		}
+	}
+	return databaseURL
 }
