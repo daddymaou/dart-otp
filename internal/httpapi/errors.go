@@ -9,6 +9,7 @@ import (
 var statusByCode = map[string]int{
 	"invalid_request":   http.StatusBadRequest,
 	"unauthorized":      http.StatusUnauthorized,
+	"forbidden":         http.StatusForbidden,
 	"account_suspended": http.StatusForbidden,
 	"not_found":         http.StatusNotFound,
 	"conflict":          http.StatusConflict,
