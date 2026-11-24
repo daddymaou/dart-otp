@@ -97,6 +97,7 @@ var ErrTenantInactive = errors.New("account_suspended")
 var ErrRateLimited = errors.New("rate_limited")
 var ErrCooldown = errors.New("cooldown_active")
 var ErrQuota = errors.New("quota_exceeded")
+var ErrUnknownPlan = errors.New("unknown tenant plan")
 
 type CooldownErr struct{ RetryAfter int }
 
@@ -137,7 +138,10 @@ func (s *Service) Send(ctx context.Context, tenantID, phoneRaw, templateID strin
 			return out, err
 		}
 		plan, ok := s.cfg.Plans[t.Plan]
-		if ok && quota >= plan.Monthly {
+		if !ok {
+			return out, ErrUnknownPlan
+		}
+		if quota >= plan.Monthly {
 			return out, ErrQuota
 		}
 	}
