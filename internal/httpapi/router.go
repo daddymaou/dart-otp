@@ -69,6 +69,15 @@ func New(cfg *config.Config, pool *pgxpool.Pool, otpSender otp.Sender) (*gin.Eng
 	jwtGroup.DELETE("/webhooks/:id", api.deleteWebhook)
 	jwtGroup.GET("/webhooks/:id/deliveries", api.webhookDeliveries)
 
+	adminGroup := router.Group("/v1/admin", api.jwtMiddleware(), api.adminMiddleware())
+	adminGroup.GET("/overview", api.adminOverview)
+	adminGroup.GET("/tenants", api.adminListTenants)
+	adminGroup.GET("/tenants/:id", api.adminGetTenant)
+	adminGroup.POST("/tenants/:id/suspend", api.adminSuspendTenant)
+	adminGroup.POST("/tenants/:id/reactivate", api.adminReactivateTenant)
+	adminGroup.POST("/tenants/:id/plan", api.adminChangeTenantPlan)
+	adminGroup.GET("/audit", api.adminListAudit)
+
 	otpGroup := router.Group("/v1/otp")
 	otpGroup.POST("/send", api.apiKeyMiddleware(), api.otpSend)
 	otpGroup.POST("/verify", api.apiKeyMiddleware(), api.otpVerify)

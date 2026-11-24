@@ -92,6 +92,8 @@ func otpError(c *gin.Context, err error) {
 		fail(c, "rate_limited", "Too many requests. Try again later.", nil)
 	case errors.Is(err, otp.ErrQuota):
 		fail(c, "quota_exceeded", "Monthly plan quota used up.", nil)
+	case errors.Is(err, otp.ErrUnknownPlan):
+		fail(c, "internal", "The account plan is not configured.", nil)
 	case errors.Is(err, db.ErrTemplateNotFound):
 		fail(c, "not_found", "Template not found.", nil)
 	default:
