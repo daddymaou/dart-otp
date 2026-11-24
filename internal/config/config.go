@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"net/mail"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,6 +19,7 @@ type Config struct {
 	OTPPepper           string
 	CookieSecure        bool
 	CORSAllowedOrigins  []string
+	AdminEmails         []string
 	TelegramBotToken    string
 	TelegramBotUsername string
 
@@ -64,6 +67,27 @@ func splitCSV(v string) []string {
 	return out
 }
 
+func parseAdminEmails(value string) ([]string, error) {
+	emails := make([]string, 0)
+	seen := make(map[string]struct{})
+	for _, entry := range strings.Split(value, ",") {
+		email := strings.ToLower(strings.TrimSpace(entry))
+		if email == "" {
+			continue
+		}
+		parsed, err := mail.ParseAddress(email)
+		if err != nil || parsed.Address != email {
+			return nil, fmt.Errorf("ADMIN_EMAILS must contain only email addresses")
+		}
+		if _, ok := seen[email]; ok {
+			continue
+		}
+		seen[email] = struct{}{}
+		emails = append(emails, email)
+	}
+	return emails, nil
+}
+
 func split(s, sep string) []string {
 	var out []string
 	start := 0
@@ -98,11 +122,19 @@ func Load() (*Config, error) {
 		AuthRatePerMin:   getInt("AUTH_RATE_PER_MINUTE", 10),
 		RetentionDays:    getInt("RETENTION_DAYS", 30),
 		Plans: map[string]Plan{
-			"free": {Monthly: getInt("PLAN_FREE_MONTHLY", 100)},
-			"pro":  {Monthly: getInt("PLAN_PRO_MONTHLY", 10000)},
+			"free":     {Monthly: getInt("PLAN_FREE_MONTHLY", 100)},
+			"starter":  {Monthly: getInt("PLAN_STARTER_MONTHLY", 1000)},
+			"growth":   {Monthly: getInt("PLAN_GROWTH_MONTHLY", 5000)},
+			"pro":      {Monthly: getInt("PLAN_PRO_MONTHLY", 10000)},
+			"business": {Monthly: getInt("PLAN_BUSINESS_MONTHLY", 50000)},
 		},
 	}
 	c.CORSAllowedOrigins = splitCSV(get("CORS_ALLOWED_ORIGINS", "http://localhost:3000"))
+	var err error
+	c.AdminEmails, err = parseAdminEmails(get("ADMIN_EMAILS", ""))
+	if err != nil {
+		return nil, err
+	}
 
 	if c.AppEnv != "test" {
 		for k, v := range map[string]string{
